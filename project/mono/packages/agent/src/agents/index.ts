@@ -4,19 +4,20 @@ import { Agent, type ToolCaller } from "./agent";
 
 import { zodToJsonSchema } from "zod-to-json-schema";
 
+import coverLetterSystemPrompt from "./cover-letter-system.txt";
 import type { NotifyFunction } from "./events";
 import offerEnricherSystemPrompt from "./offer-enricher-system.txt";
 import offersFinderSystemPrompt from "./offers-finder-system.txt";
 import routerSystemPrompt from "./router-system.txt";
 
 import {
+	CoverLetterWriterInputSchema,
+	CoverLetterWriterOutputSchema,
 	EnrichedJobOfferSchema,
 	JobOfferSchema,
 	OfferEnricherOutputSchema,
 	OffersFinderInputSchema,
 	OffersFinderOutputSchema,
-	PersonalizerInputSchema,
-	PersonalizerOutputSchema,
 	RouterAgentOutputSchema,
 	UserInteractionInputSchema,
 	UserInteractionSelectInputSchema,
@@ -118,6 +119,16 @@ export async function agentBuilder({
 				structuredOutput: OfferEnricherOutputSchema,
 				notify,
 			});
+		case "agent-cover-letter-writer":
+			return new Agent({
+				id,
+				name: "cover-letter-writer",
+				system: coverLetterSystemPrompt,
+				tools: [],
+				toolCaller: mcpToolCaller(mcpClient),
+				structuredOutput: CoverLetterWriterOutputSchema,
+				notify,
+			});
 		default:
 			throw new Error(`Agent ${agentName} not found`);
 	}
@@ -167,11 +178,11 @@ export function getRouterAgent({
 		},
 		{
 			type: "function",
-			name: "personalizer",
+			name: "agent-cover-letter-writer",
 			description: `Create a personalized cover letter for a job offer. Returns the cover letter in the shape: ${zodToJsonSchema(
-				PersonalizerOutputSchema,
+				CoverLetterWriterOutputSchema,
 			)}`,
-			parameters: zodToJsonSchema(PersonalizerInputSchema),
+			parameters: zodToJsonSchema(CoverLetterWriterInputSchema),
 			strict: true,
 		},
 	];
@@ -216,6 +227,17 @@ export function getRouterAgent({
 				return res;
 			}
 
+			case "agent-cover-letter-writer": {
+				const offerEnricherAgent = await agentBuilder({
+					id: toolCallId,
+					mcpClient,
+					agentName: "agent-cover-letter-writer",
+					notify,
+				});
+				const res = await offerEnricherAgent.start(JSON.stringify(args));
+				return res;
+			}
+
 			default:
 				throw new Error(`Tool ${name} not found`);
 		}
@@ -224,7 +246,7 @@ export function getRouterAgent({
 	return new Agent({
 		name: "agent-router",
 		system: routerSystemPrompt,
-		tools: tools.slice(0, 3),
+		tools: tools,
 		toolCaller,
 		notify,
 		structuredOutput: RouterAgentOutputSchema,

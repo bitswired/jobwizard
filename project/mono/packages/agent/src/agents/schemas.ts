@@ -40,15 +40,19 @@ export type UserInteractionSelectInput = z.infer<
 export const OfferEnricherOutputSchema = EnrichedJobOfferSchema;
 export type OfferEnricherOutput = z.infer<typeof OfferEnricherOutputSchema>;
 
-export const PersonalizerInputSchema = z.object({
-	enrichedOffers: z.array(EnrichedJobOfferSchema),
+export const CoverLetterWriterInputSchema = z.object({
+	enrichedOffer: EnrichedJobOfferSchema,
 });
-export type PersonalizerInput = z.infer<typeof PersonalizerInputSchema>;
+export type CoverLetterWriterInputSchema = z.infer<
+	typeof CoverLetterWriterInputSchema
+>;
 
-export const PersonalizerOutputSchema = z.object({
-	coverLetters: z.array(z.string()),
+export const CoverLetterWriterOutputSchema = z.object({
+	coverLetter: z.string(),
 });
-export type PersonalizerOutput = z.infer<typeof PersonalizerOutputSchema>;
+export type CoverLetterWriterOutputSchema = z.infer<
+	typeof CoverLetterWriterOutputSchema
+>;
 
 export const RouterAgentOutputSchema = z.object({
 	letters: z.array(

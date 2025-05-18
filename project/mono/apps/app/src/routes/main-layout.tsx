@@ -29,14 +29,12 @@ export const Route = createFileRoute("/app")({
 
 function RouteComponent() {
 	const me = $api.useQuery("get", "/auth/me");
-	me;
 	return (
 		<div className="flex h-screen bg-black">
-			<aside className="h-screen w-max p-2 shrink-0 min-[1000px]:hidden">
-				<div className="h-full w-full bg-black rounded-lg text-white p-4">
-					<div>AI</div>
+			<aside className="h-screen w-max shrink-0 min-[1000px]:hidden">
+				<div className="h-full w-full bg-black rounded-lg text-white p-4 py-6">
+					<div className="mx-auto w-max">AI</div>
 
-					<br />
 					<br />
 
 					<nav className="flex flex-col gap-4 mt-4 w-full">
@@ -82,7 +80,7 @@ function RouteComponent() {
 				</div>
 			</aside>
 
-			<main className="p-6 w-full h-full bg-black">
+			<main className="py-6 pr-6 w-full h-full bg-black">
 				<main className="w-full h-full bg-white rounded-md p-4 py-8">
 					<Outlet />
 				</main>

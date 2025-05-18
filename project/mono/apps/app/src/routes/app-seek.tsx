@@ -1,4 +1,4 @@
-import { FeedDisplay } from "@app/components/seek";
+import { FeedDisplay, FeedDisplayMinimal } from "@app/components/seek";
 import {
 	Sheet,
 	SheetContent,
@@ -100,25 +100,27 @@ function SeekPage() {
 						<Tutorial />
 					</div>
 				)}
-				{mainAgentStatus !== "idle" && <FeedDisplay feed={feed} />}
+				{mainAgentStatus !== "idle" && <FeedDisplayMinimal feed={feed} />}
 				<StatusDisplay />
 			</div>
 
-			<div className="mt-auto">
-				<form
-					className="relative w-full max-w-[700px] mx-auto"
-					onSubmit={onSubmit}
-				>
-					<Textarea name="user-message" className="w-full h-[100px]" />
-					<Button
-						type="submit"
-						className="absolute bottom-2 right-2"
-						size="icon"
+			{mainAgentStatus === "idle" && (
+				<div className="mt-auto ">
+					<form
+						className="relative w-full max-w-[700px] mx-auto"
+						onSubmit={onSubmit}
 					>
-						<ArrowUp />
-					</Button>
-				</form>
-			</div>
+						<Textarea name="user-message" className="w-full h-[100px]" />
+						<Button
+							type="submit"
+							className="absolute bottom-2 right-2"
+							size="icon"
+						>
+							<ArrowUp />
+						</Button>
+					</form>
+				</div>
+			)}
 		</div>
 	);
 }
@@ -254,7 +256,9 @@ function ConsumptionDisplay() {
 				</>
 			)}
 			<div className="flex ml-auto w-max gap-4">
-				<p onClick={() => collapseAll()}>Collapse all</p>
+				{
+					// <p onClick={() => collapseAll()}>Collapse all</p>
+				}
 				<AssetsDisplay />
 				<WebsocketStatusDisplay />
 			</div>
