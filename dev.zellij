@@ -1,0 +1,36 @@
+layout {
+	default_tab_template {
+		pane size=1 borderless=true {
+		    plugin location="zellij:tab-bar"
+		}
+		children
+		pane size=2 borderless=true {
+		    plugin location="zellij:status-bar"
+		}
+	}
+
+	tab name="api"  {
+		pane command="nvim" cwd="./project/mono/apps/api" {
+			args "." 
+		}
+	}
+	tab name="app" {
+		pane command="nvim" cwd="./project/mono/apps/app" {
+			args "." 
+		}
+	}
+	tab name="agent" {
+		pane command="nvim" cwd="./project/mono/packages/agent" {
+			args "." 
+		}
+	}
+	tab name="consoles" split_direction="vertical" {
+		pane name="api-dev" command="just" {
+			args "api-dev" 
+		}
+		pane name="app-dev" command="just" {
+			args "app-dev" 
+		}
+	}
+}
+

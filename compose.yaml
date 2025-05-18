@@ -1,0 +1,31 @@
+services:
+
+  server:
+    image: bitswired/bright_data_mcp-server:latest
+    build:
+      context: project/mono
+      dockerfile: Dockerfile
+      target: server
+      args:
+        - VITE_API_BASE_URL=https://brightdata-mcp-api.bitswired.com
+    ports:
+      - "3000:3000"
+    env_file:
+      - project/mono/apps/api/.env
+    volumes:
+      - .volumes/:/app/.volumes
+      
+  app:
+    image: bitswired/bright_data_mcp-app:latest
+    build:
+      context: project/mono
+      dockerfile: Dockerfile
+      target: app
+      args:
+        - VITE_API_BASE_URL=https://brightdata-mcp-api.bitswired.com
+        - VITE_API_WEBSOCKET_URL=wss://brightdata-mcp-api.bitswired.com/ws
+    ports:
+      - "5173:3000"
+    env_file:
+      - project/mono/apps/app/.env
+      

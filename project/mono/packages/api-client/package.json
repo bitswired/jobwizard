@@ -1,0 +1,18 @@
+{
+	"name": "api-client",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"openapi:get": "curl localhost:3000/swagger/json > openapi.json",
+		"openapi:create": "bun openapi-client-gen.ts ./openapi.json ./src/openapi.ts",
+		"openapi:refresh": "bun openapi:get && bun openapi:create"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"openapi-typescript": "^7.7.1"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}

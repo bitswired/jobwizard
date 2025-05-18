@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@app": ["./apps/app/src"],
+			"@app/*": ["./apps/app/src/*"],
+			"@api": ["./apps/app/src"],
+			"@api/*": ["./apps/api/src/*"],
+			"@api-client": ["./packages/api-client/src"],
+			"@api-client/*": ["./packages/api-client/src/*"],
+			"@agent": ["./packages/agent/src"],
+			"@agent/*": ["./packages/agent/src/*"]
+		}
+	}
+}
