@@ -1,4 +1,4 @@
-import { FeedDisplay, FeedDisplayMinimal } from "@app/components/seek";
+import { FeedDisplayMinimal } from "@app/components/seek";
 import {
 	Sheet,
 	SheetContent,
@@ -25,9 +25,12 @@ import {
 } from "@app/atoms/seek";
 
 import {
+	type UserInteractionFileWithUidInput,
+	UserInteractionFileWithUidInputSchema,
 	UserInteractionInputSchema,
 	UserInteractionSelectInputSchema,
 } from "@agent/agents/schemas";
+import { statusMessagesAtom } from "@app/atoms/seek/feed";
 import { Button } from "@app/components/ui/button";
 import { Checkbox } from "@app/components/ui/checkbox";
 import {
@@ -91,17 +94,17 @@ function SeekPage() {
 
 			<UserInteractionDialog />
 
-			<div
-				className="flex flex-col gap-2 overflow-y-auto h-full w-full"
-				ref={ref}
-			>
-				{mainAgentStatus === "idle" && (
-					<div className="m-auto">
-						<Tutorial />
-					</div>
-				)}
-				{mainAgentStatus !== "idle" && <FeedDisplayMinimal feed={feed} />}
-				<StatusDisplay />
+			<div className="overflow-y-auto h-full w-full" ref={ref}>
+				<div className="flex flex-col gap-2 w-full max-w-[800px] mx-auto p-1 overflow-hidden">
+					{mainAgentStatus === "idle" && (
+						<div className="m-auto">
+							<Tutorial />
+						</div>
+					)}
+					{mainAgentStatus !== "idle" && <FeedDisplayMinimal feed={feed} />}
+					<StatusDisplay />
+					{mainAgentStatus === "done" && <ResultDisplay />}
+				</div>
 			</div>
 
 			{mainAgentStatus === "idle" && (
@@ -121,6 +124,53 @@ function SeekPage() {
 					</form>
 				</div>
 			)}
+		</div>
+	);
+}
+
+function ResultDisplay() {
+	const letters = useAtomValue(routerOutputAtom);
+	const offers = useAtomValue(offersAtom);
+
+	const res = letters.map((letter) => {
+		const offer = offers.at(letter.id);
+		if (!offer) {
+			throw new Error("Invalid offer idx");
+		}
+		return {
+			offer,
+			letter,
+		};
+	});
+
+	return (
+		<div className="flex flex-col gap-4 w-full text-[1rem]">
+			{res.map((x) => (
+				<div
+					className="border rounded-md p-8 space-y-2 w-full"
+					key={JSON.stringify(x)}
+				>
+					<div className="font-bold">{x.offer.title}</div>
+					<div>
+						<a
+							href={x.offer.url}
+							className="underline line-clamp-1 text-[0.8rem]"
+						>
+							{x.offer.url}
+						</a>
+					</div>
+					<div className="text-[0.75rem] text-slate-500">
+						{x.offer.description}
+					</div>
+					<div className="mt-8">
+						<div className="font-semi-bold">Cover Letter</div>
+						<div className="text-sm prose prose-sm text-[0.8rem]">
+							<Markdown>{x.letter.content}</Markdown>
+						</div>
+					</div>
+				</div>
+			))}
+			<Button onClick={() => window.location.reload()}>Seek Jobs Again</Button>
 		</div>
 	);
 }
@@ -145,7 +195,7 @@ function WebsocketStatusDisplay() {
 	);
 }
 
-function AssetsDisplay() {
+export function AssetsDisplay() {
 	const offers = useAtomValue(offersAtom);
 	const coverLetters = useAtomValue(routerOutputAtom);
 
@@ -177,7 +227,7 @@ function AssetsDisplay() {
 				</SheetHeader>
 
 				<div className="flex flex-col gap-4 ">
-					<div className="text-2xl">Job Offers</div>
+					<div className="text-[1rem]">Job Offers</div>
 					<div className="h-[500px] overflow-y-auto flex flex-col gap-4 p-4 bg-slate-100 rounded-md">
 						{offers.map((offer) => (
 							<div
@@ -197,7 +247,7 @@ function AssetsDisplay() {
 				</div>
 
 				<div className="flex flex-col gap-4 ">
-					<div className="text-2xl">Cover Letters</div>
+					<div className="text-[1rem]">Cover Letters</div>
 					<div className="h-[500px] overflow-y-auto flex flex-col gap-4 ">
 						{coverLetters.map((letter) => (
 							<div
@@ -224,20 +274,8 @@ function ConsumptionDisplay() {
 		(0.4 * total.inputTokens) / 1_000_000 +
 		(1.6 * total.outputTokens) / 1_000_000;
 
-	const collapseAll = () => {
-		// find all element with data-state="open" withtin the div id container recursively and toggle them to closed
-		const elements = document.querySelectorAll(
-			'[data-state="open"]',
-		) as NodeListOf<HTMLElement>;
-		console.log(elements.length);
-		for (const element of elements) {
-			element.setAttribute("data-state", "closed");
-		}
-		console.log("Collapse all");
-	};
-
 	return (
-		<div className="text-xs text-gray-500 flex gap-4 shadow-md p-2 rounded-md items-center">
+		<div className="text-xs text-gray-500 flex gap-4 shadow-md p-2 rounded-md items-center flex-wrap justify-between">
 			{mainAgentStatus !== "idle" && (
 				<>
 					<div>Model: GPT 4.1 Mini</div>
@@ -255,13 +293,7 @@ function ConsumptionDisplay() {
 					</div>
 				</>
 			)}
-			<div className="flex ml-auto w-max gap-4">
-				{
-					// <p onClick={() => collapseAll()}>Collapse all</p>
-				}
-				<AssetsDisplay />
-				<WebsocketStatusDisplay />
-			</div>
+			<WebsocketStatusDisplay />
 		</div>
 	);
 }
@@ -274,7 +306,11 @@ function UserInteractionDialog() {
 
 	const parsedQuery = userInteractionQuery
 		? z
-				.union([UserInteractionSelectInputSchema, UserInteractionInputSchema])
+				.union([
+					UserInteractionFileWithUidInputSchema,
+					UserInteractionSelectInputSchema,
+					UserInteractionInputSchema,
+				])
 				.parse(JSON.parse(userInteractionQuery))
 		: null;
 
@@ -286,6 +322,10 @@ function UserInteractionDialog() {
 		query: any,
 	): query is { prompt: string; choices: { value: string; label: string }[] } {
 		return "choices" in query;
+	}
+
+	function hasFile(query: any): query is UserInteractionFileWithUidInput {
+		return "mime" in query;
 	}
 
 	const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -303,6 +343,29 @@ function UserInteractionDialog() {
 				type: "user.interaction.response",
 				message: JSON.stringify(selectedChoices),
 			});
+		} else if (hasFile(parsedQuery)) {
+			const userFile = formData.get("user-file");
+			if (!userFile) {
+				throw new Error("No file");
+			}
+			fetch(parsedQuery.url, {
+				method: "PUT",
+				body: userFile,
+			})
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error(`Failed to upload file: ${response.statusText}`);
+					}
+					console.log("File uploaded successfully");
+					sendMessage({
+						type: "user.interaction.response",
+						message: parsedQuery.uid,
+					});
+				})
+				.catch((error) => {
+					console.error("Error uploading file:", error);
+					// Optionally, handle the error (e.g., show an error message to the user)
+				});
 		} else {
 			const message = formData.get("user-message") as string;
 
@@ -336,6 +399,31 @@ function UserInteractionDialog() {
 				</Button>
 			</form>
 		);
+	} else if (hasFile(parsedQuery)) {
+		form = (
+			<form className="relative" onSubmit={onSubmit}>
+				<div className="rounded-md flex gap-2 items-center p-1 px-4 w-full">
+					<input
+						id="file"
+						name="user-file"
+						placeholder="Upload your resume as a PDF"
+						type="file"
+						accept={parsedQuery.mime}
+						className="hidden"
+					/>
+					<label
+						htmlFor="file"
+						className="cursor-pointer hover:bg-slate-200 p-4 flex border rounded-md"
+					>
+						Click to upload then submit
+					</label>
+				</div>
+
+				<Button type="submit" className="absolute bottom-2 right-2">
+					Submit <ArrowUp />
+				</Button>
+			</form>
+		);
 	} else {
 		form = (
 			<form className="relative" onSubmit={onSubmit}>
@@ -349,12 +437,14 @@ function UserInteractionDialog() {
 
 	return (
 		<Dialog open={!!parsedQuery}>
-			<DialogContent className="min-w-[800px] max-w-[800px]">
+			<DialogContent className="max-w-[90vw] text-[0.9rem]">
 				<DialogHeader>
-					<DialogTitle>The agent need yggour input</DialogTitle>
+					<DialogTitle className="p-1 text-left">
+						JobWizard agents need your input
+					</DialogTitle>
 				</DialogHeader>
 
-				<div className="prose">
+				<div className="prose text-[0.9rem]">
 					<Markdown>{parsedQuery.prompt}</Markdown>
 				</div>
 				{form}
@@ -378,29 +468,27 @@ The router agent use different tools and agents to complete the tedious search f
 
 	return (
 		<div className="space-y-8">
-			<div className="text-center text-2xl font-bold">
+			<div className="text-center text-[1.5rem] font-bold">
 				Let our AI agents find your dream job for you!
 			</div>
 
 			<div
 				id="description prose"
-				className="prose mx-auto bg-slate-100 p-4 rounded-md shadow-md"
+				className="prose mx-auto bg-slate-100 p-4 rounded-md shadow-md text-[0.8rem]"
 			>
 				<Markdown>{description}</Markdown>
 			</div>
-			<div className="grid grid-cols-2 gap-8">
+			<div className="grid dm:grid-cols-1  md:grid-cols-2 gap-8 justify-items-stretch">
+				<ExamplePromptButton>AI Engineers jobs in Geneva</ExamplePromptButton>
+
+				<ExamplePromptButton>Remote jobs in AI</ExamplePromptButton>
+
 				<ExamplePromptButton>
-					Find me AI Engineers jobs in Geneva
+					Software eng jobs in Switzerland
 				</ExamplePromptButton>
 
-				<ExamplePromptButton>Find me remote jobs in AI</ExamplePromptButton>
-
 				<ExamplePromptButton>
-					Find me software engineering jobs in Switzerland
-				</ExamplePromptButton>
-
-				<ExamplePromptButton>
-					Find me data engineering jobs in France
+					Data engineering jobs in France
 				</ExamplePromptButton>
 			</div>
 		</div>
@@ -430,20 +518,23 @@ function ExamplePromptButton({
 
 	return (
 		<button type="button" className="cursor-pointer" onClick={onClick}>
-			<div className="p-8 rounded-md bg-slate-100 shadow-md">{children}</div>
+			<div className="p-4 rounded-md bg-slate-100 shadow-md text-[0.8rem] hover:bg-slate-300">
+				{children}
+			</div>
 		</button>
 	);
 }
 
 function StatusDisplay() {
 	const status = useAtomValue(mainAgentStatusAtom);
+	const statusMessages = useAtomValue(statusMessagesAtom);
 
 	switch (status) {
 		case "running":
 			return (
-				<div className="flex items-center gap-2 my-8">
-					Main agent running{" "}
-					<BeatLoader size={12} color="var(--color-emerald-500)" />
+				<div className="flex items-center gap-2 my-8 pl-6 animate-pulse text-[0.8rem] flex-wrap italic">
+					JobWizard running: {statusMessages.at(-1)}
+					<BeatLoader size={8} />
 				</div>
 			);
 		case "idle":

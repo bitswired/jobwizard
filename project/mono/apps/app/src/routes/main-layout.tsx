@@ -5,7 +5,7 @@ import {
 	createFileRoute,
 	redirect,
 } from "@tanstack/react-router";
-import { Gem, Home, Workflow } from "lucide-react";
+import { Code, Gem, Home } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
 	component: RouteComponent,
@@ -31,24 +31,24 @@ function RouteComponent() {
 	const me = $api.useQuery("get", "/auth/me");
 	return (
 		<div className="flex h-screen bg-black">
-			<aside className="h-screen w-max shrink-0 min-[1000px]:hidden">
+			<aside className="h-screen w-max shrink-0 min-[1000px]:hidden hidden">
 				<div className="h-full w-full bg-black rounded-lg text-white p-4 py-6">
-					<div className="mx-auto w-max">AI</div>
+					<div className="size-[30px]">
+						<img
+							src="https://cdn-icons-png.flaticon.com/512/9631/9631363.png"
+							alt="Logo"
+							className="w-full h-full"
+						/>
+					</div>
 
 					<br />
 
 					<nav className="flex flex-col gap-4 mt-4 w-full">
-						<Link to="/app" className="text-white flex gap-2 items-center">
+						<Link to="/" className="text-white flex gap-2 items-center">
 							<Home size={22} />
 						</Link>
 						<Link to="/app/seek" className="text-white flex gap-2 items-center">
 							<Gem size={22} />
-						</Link>
-						<Link
-							to="/app/offers"
-							className="text-white flex gap-2 items-center"
-						>
-							<Workflow size={22} />
 						</Link>
 					</nav>
 				</div>
@@ -56,14 +56,23 @@ function RouteComponent() {
 
 			<aside className="h-screen w-max p-2 shrink-0 max-[1000px]:hidden">
 				<div className="h-full w-full bg-black rounded-lg text-white p-4">
-					<div>AI Job Seeking</div>
+					<div className="flex gap-4 items-center">
+						<div className="size-[30px]">
+							<img
+								src="https://cdn-icons-png.flaticon.com/512/9631/9631363.png"
+								alt="Logo"
+								className="w-full h-full"
+							/>
+						</div>
+						<div className="font-bold">JobWizard</div>
+					</div>
 
 					<br />
 					<div>{me.data?.email}</div>
 					<br />
 
 					<nav className="flex flex-col gap-4 mt-4 w-full">
-						<Link to="/app" className="text-white flex gap-2 items-center">
+						<Link to="/" className="text-white flex gap-2 items-center">
 							<Home size={16} /> Home
 						</Link>
 						<Link to="/app/seek" className="text-white flex gap-2 items-center">
@@ -71,17 +80,18 @@ function RouteComponent() {
 							Find Your Dream Job
 						</Link>
 						<Link
-							to="/app/offers"
+							to="/app/readme"
 							className="text-white flex gap-2 items-center"
 						>
-							<Workflow size={16} /> Offers
+							<Code size={16} />
+							Readme
 						</Link>
 					</nav>
 				</div>
 			</aside>
 
-			<main className="py-6 pr-6 w-full h-full bg-black">
-				<main className="w-full h-full bg-white rounded-md p-4 py-8">
+			<main className="p-2 md:p-6 w-full h-full bg-black">
+				<main className="w-full h-full bg-white rounded-md p-2">
 					<Outlet />
 				</main>
 			</main>

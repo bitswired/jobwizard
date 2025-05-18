@@ -37,11 +37,38 @@ export type UserInteractionSelectInput = z.infer<
 	typeof UserInteractionSelectInputSchema
 >;
 
+export const UserInteractionFileInputSchema = z.object({
+	prompt: z.string(),
+	mime: z.string(),
+});
+export type UserInteractionFileInput = z.infer<
+	typeof UserInteractionFileInputSchema
+>;
+export const UserInteractionFileWithUidInputSchema = z.object({
+	prompt: z.string(),
+	mime: z.string(),
+	uid: z.string(),
+	url: z.string(),
+});
+export type UserInteractionFileWithUidInput = z.infer<
+	typeof UserInteractionFileWithUidInputSchema
+>;
+export const StatusInputSchema = z.object({
+	statusMessage: z.string(),
+});
+export type StatusInput = z.infer<typeof StatusInputSchema>;
+
+export const ResumeParserInputSchema = z.object({
+	key: z.string(),
+});
+export type ResumeParserInput = z.infer<typeof ResumeParserInputSchema>;
+
 export const OfferEnricherOutputSchema = EnrichedJobOfferSchema;
 export type OfferEnricherOutput = z.infer<typeof OfferEnricherOutputSchema>;
 
 export const CoverLetterWriterInputSchema = z.object({
 	enrichedOffer: EnrichedJobOfferSchema,
+	resume: z.string(),
 });
 export type CoverLetterWriterInputSchema = z.infer<
 	typeof CoverLetterWriterInputSchema

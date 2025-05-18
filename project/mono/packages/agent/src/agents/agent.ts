@@ -4,7 +4,7 @@ import type { ZodTypeAny } from "zod";
 import { logger } from "../logger";
 import type { NotifyFunction } from "./events";
 
-const openai = new OpenAI({
+export const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 });
 

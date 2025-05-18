@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
+	assetsInclude: ["**/*.mp4"],
 	plugins: [
 		TanStackRouterVite({
 			target: "react",

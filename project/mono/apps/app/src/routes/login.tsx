@@ -14,7 +14,7 @@ function LoginPage() {
 	const login = $api.useMutation("post", "/auth/username/login", {
 		onSuccess: () => {
 			toast.success("Login successful");
-			navigate({ to: "/" });
+			navigate({ to: "/app/seek" });
 		},
 		onError: (error) => {
 			toast.error(`Login failed: ${JSON.stringify(error)}`);

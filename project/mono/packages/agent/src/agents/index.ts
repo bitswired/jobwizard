@@ -1,6 +1,6 @@
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import type Openai from "openai";
-import { Agent, type ToolCaller } from "./agent";
+import { Agent, type ToolCaller, openai } from "./agent";
 
 import { zodToJsonSchema } from "zod-to-json-schema";
 
@@ -18,10 +18,16 @@ import {
 	OfferEnricherOutputSchema,
 	OffersFinderInputSchema,
 	OffersFinderOutputSchema,
+	ResumeParserInputSchema,
 	RouterAgentOutputSchema,
+	StatusInputSchema,
+	UserInteractionFileInputSchema,
+	type UserInteractionFileWithUidInput,
+	type UserInteractionFileWithUidInputSchema,
 	UserInteractionInputSchema,
 	UserInteractionSelectInputSchema,
 } from "./schemas";
+import { r2 } from "./storage";
 
 export type { Agent } from "./agent";
 export type { NotifyFunction } from "./events";
@@ -169,6 +175,30 @@ export function getRouterAgent({
 		},
 		{
 			type: "function",
+			name: "user-interaction-file",
+			description:
+				"Interact withe the user by displaying a prompt in markdown, and providing a form to upload a file, it will rreturn the key of the uploaded file in the bucket",
+			parameters: zodToJsonSchema(UserInteractionFileInputSchema),
+			strict: true,
+		},
+		{
+			type: "function",
+			name: "status",
+			description:
+				"This function should be used in parallel eveytime another function call is used to display a status message to the user. The status message should be descriptive and concise and it will describe what you are currently doing so he can track progress and understand what is happening",
+			parameters: zodToJsonSchema(StatusInputSchema),
+			strict: true,
+		},
+		{
+			type: "function",
+			name: "resume-parser",
+			description:
+				"Given the key of a pdf stored in the bucket, it will parse and return the content of the file as text",
+			parameters: zodToJsonSchema(ResumeParserInputSchema),
+			strict: true,
+		},
+		{
+			type: "function",
 			name: "agent-offer-enricher",
 			description: `Enrich a job offer with additional information. Returns the enriched job offer in the shape: ${zodToJsonSchema(
 				EnrichedJobOfferSchema,
@@ -214,6 +244,61 @@ export function getRouterAgent({
 			case "user-interaction-select": {
 				const res = await userInteractionFunction(JSON.stringify(args));
 				return res;
+			}
+
+			case "user-interaction-file": {
+				console.log("CALLING INTERACTYION FIEL");
+				const input = UserInteractionFileInputSchema.parse(args);
+				const uid = Bun.randomUUIDv7();
+				const url = r2.presign(uid, {
+					method: "PUT",
+					type: input.mime,
+					acl: "private",
+					expiresIn: 300,
+				});
+				const x: UserInteractionFileWithUidInput = {
+					...input,
+					uid,
+					url,
+				};
+				const res = await userInteractionFunction(JSON.stringify(x));
+				return res;
+			}
+
+			case "status": {
+				console.log(args);
+				return "Status message displayed";
+			}
+
+			case "resume-parser": {
+				console.log("CALLING RESUME PARSER");
+				const input = ResumeParserInputSchema.parse(args);
+
+				const x = r2.file(input.key);
+				const data = await x.bytes();
+				const d = data.toBase64();
+
+				const response = await openai.responses.create({
+					model: "gpt-4.1-mini",
+					input: [
+						{
+							role: "user",
+							content: [
+								{
+									type: "input_file",
+									filename: "draconomicon.pdf",
+									file_data: `data:application/pdf;base64,${d}`,
+								},
+								{
+									type: "input_text",
+									text: "Extract this resume as complete, exhaustive and intelligible markdown representaion for other llm to clearly undertand.",
+								},
+							],
+						},
+					],
+				});
+				console.log(response.output_text);
+				return response.output_text;
 			}
 
 			case "agent-offer-enricher": {

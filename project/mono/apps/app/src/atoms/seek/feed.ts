@@ -4,6 +4,7 @@ import {
 	OffersFinderOutputSchema,
 	type RouterAgentOutput,
 	RouterAgentOutputSchema,
+	StatusInputSchema,
 } from "@agent/agents/schemas";
 import { db } from "@app/lib/db";
 import { atom } from "jotai";
@@ -109,6 +110,8 @@ export const messageContainerRefAtom =
 
 export const offersAtom = atom<OffersFinderOutput["offers"]>([]);
 export const routerOutputAtom = atom<RouterAgentOutput["letters"]>([]);
+
+export const statusMessagesAtom = atom<string[]>([]);
 
 export const handleNewFeedEventAtom = atom(null, (get, set, event: Event) => {
 	if (event.event === "agent.user_interaction.query") {
@@ -280,6 +283,13 @@ export const handleNewFeedEventAtom = atom(null, (get, set, event: Event) => {
 				return { ...prev };
 			}
 			case "agent.tool_call.result": {
+				if (event.data.name === "status") {
+					const parsed = StatusInputSchema.parse(event.data.args);
+					set(statusMessagesAtom, (prev) => {
+						return [...prev, parsed.statusMessage];
+					});
+				}
+
 				const isAgent = event.data.name.startsWith("agent-");
 
 				if (isAgent) {

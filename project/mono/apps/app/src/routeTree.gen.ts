@@ -16,6 +16,7 @@ import { Route as loginImport } from './routes/login'
 import { Route as mainLayoutImport } from './routes/main-layout'
 import { Route as homeImport } from './routes/home'
 import { Route as appSeekImport } from './routes/app-seek'
+import { Route as readmeImport } from './routes/readme'
 import { Route as appOffersImport } from './routes/app-offers'
 import { Route as appIndexImport } from './routes/app-index'
 
@@ -48,6 +49,12 @@ const homeRoute = homeImport.update({
 const appSeekRoute = appSeekImport.update({
   id: '/seek',
   path: '/seek',
+  getParentRoute: () => mainLayoutRoute,
+} as any)
+
+const readmeRoute = readmeImport.update({
+  id: '/readme',
+  path: '/readme',
   getParentRoute: () => mainLayoutRoute,
 } as any)
 
@@ -109,6 +116,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof appOffersImport
       parentRoute: typeof mainLayoutImport
     }
+    '/app/readme': {
+      id: '/app/readme'
+      path: '/readme'
+      fullPath: '/app/readme'
+      preLoaderRoute: typeof readmeImport
+      parentRoute: typeof mainLayoutImport
+    }
     '/app/seek': {
       id: '/app/seek'
       path: '/seek'
@@ -124,12 +138,14 @@ declare module '@tanstack/react-router' {
 interface mainLayoutRouteChildren {
   appIndexRoute: typeof appIndexRoute
   appOffersRoute: typeof appOffersRoute
+  readmeRoute: typeof readmeRoute
   appSeekRoute: typeof appSeekRoute
 }
 
 const mainLayoutRouteChildren: mainLayoutRouteChildren = {
   appIndexRoute: appIndexRoute,
   appOffersRoute: appOffersRoute,
+  readmeRoute: readmeRoute,
   appSeekRoute: appSeekRoute,
 }
 
@@ -144,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof signupRoute
   '/app/': typeof appIndexRoute
   '/app/offers': typeof appOffersRoute
+  '/app/readme': typeof readmeRoute
   '/app/seek': typeof appSeekRoute
 }
 
@@ -153,6 +170,7 @@ export interface FileRoutesByTo {
   '/signup': typeof signupRoute
   '/app': typeof appIndexRoute
   '/app/offers': typeof appOffersRoute
+  '/app/readme': typeof readmeRoute
   '/app/seek': typeof appSeekRoute
 }
 
@@ -164,6 +182,7 @@ export interface FileRoutesById {
   '/signup': typeof signupRoute
   '/app/': typeof appIndexRoute
   '/app/offers': typeof appOffersRoute
+  '/app/readme': typeof readmeRoute
   '/app/seek': typeof appSeekRoute
 }
 
@@ -176,9 +195,17 @@ export interface FileRouteTypes {
     | '/signup'
     | '/app/'
     | '/app/offers'
+    | '/app/readme'
     | '/app/seek'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/app' | '/app/offers' | '/app/seek'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/app'
+    | '/app/offers'
+    | '/app/readme'
+    | '/app/seek'
   id:
     | '__root__'
     | '/'
@@ -187,6 +214,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/app/'
     | '/app/offers'
+    | '/app/readme'
     | '/app/seek'
   fileRoutesById: FileRoutesById
 }
@@ -229,6 +257,7 @@ export const routeTree = rootRoute
       "children": [
         "/app/",
         "/app/offers",
+        "/app/readme",
         "/app/seek"
       ]
     },
@@ -244,6 +273,10 @@ export const routeTree = rootRoute
     },
     "/app/offers": {
       "filePath": "app-offers.tsx",
+      "parent": "/app"
+    },
+    "/app/readme": {
+      "filePath": "readme.tsx",
       "parent": "/app"
     },
     "/app/seek": {

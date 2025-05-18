@@ -17,6 +17,8 @@ Bun.serve({
 			if (await file.exists()) {
 				return new Response(file);
 			}
+
+			return new Response(Bun.file("./index.html"));
 			// Return 404 if file doesn't exist
 			return new Response("Not Found", { status: 404 });
 		} catch (e) {

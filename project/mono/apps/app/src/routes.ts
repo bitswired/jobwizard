@@ -7,6 +7,7 @@ export const routes = rootRoute("root.tsx", [
 	route("/signup", "signup.tsx"),
 	route("/app", "main-layout.tsx", [
 		index("app-index.tsx"),
+		route("/readme", "readme.tsx"),
 		route("/seek", "app-seek.tsx"),
 		route("/offers", "app-offers.tsx"),
 	]),
