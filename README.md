@@ -1,7 +1,6 @@
 # JobWizard: AI-Powered Job Application Automation
 
-
-https://github.com/user-attachments/assets/e737a89a-560c-4bd2-9a18-2e54c7ba4908
+https://github.com/user-attachments/assets/c01299fc-a80e-49a9-812b-5cb4d57ff7ab
 
 
 ## Overview
