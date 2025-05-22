@@ -1,5 +1,8 @@
 # JobWizard: AI-Powered Job Application Automation
 
+https://github.com/user-attachments/assets/c01299fc-a80e-49a9-812b-5cb4d57ff7ab
+
+
 ## Overview
 JobWizard is an AI-driven web application that revolutionizes the job search process, drastically reducing time and boosting application success rates. By automating job offer discovery and generating personalized cover letters, JobWizard empowers job seekers to focus on their career goals while the system handles the heavy lifting. Built for the [Bright Data Real-Time AI Agents Challenge](https://dev.to/devteam/join-the-bright-data-real-time-ai-agents-challenge-3000-in-prizes-cog), JobWizard leverages Bright Data’s MCP server to seamlessly discover, access, extract, and interact with real-time web data, delivering tailored job matches and compelling cover letters with unmatched precision.
 
