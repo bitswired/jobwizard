@@ -41,12 +41,33 @@ JobWizard’s multi-agent system orchestrates a seamless workflow, powered by Br
 
 
 ## Demo
-Try JobWizard now at [https://brightdata-mcp.bitswired.com](https://brightdata-mcp.bitswired.com).  
+Try JobWizard live at [https://brightdata-mcp.bitswired.com](https://brightdata-mcp.bitswired.com/)
+
 **Testing Credentials**:  
 - Email: `noah@brightdata.com`  
 - Password: Provided by email to Noah to avoid abuse
 
-Upload a resume or use the demo mode to see JobWizard find job offers (e.g., “Data engineering jobs in France”) and generate a cover letter.
+**Usage Notes:**
+> As a proof-of-concept built under time constraints, JobWizard focuses on demonstrating core functionality rather than handling all corner cases or scalability. To ensure a smooth experience, I recommend selecting 1 or 2 job offers when prompted to choose roles, as this keeps the process quick. The full workflow (resume parsing, job discovery, data enrichment, and cover letter generation) involves extensive scraping with our multi-agent system and Bright Data’s MCP tools, so it may take a few minutes to complete.
+
+**Mobile and Desktop Compatibility:**
+> JobWizard works seamlessly on both mobile and desktop, but maintaining the WebSocket connection is critical for the process to complete uninterrupted. On desktop, simply avoid refreshing the page. On mobile, please don’t exit the app or let the phone lock, as this may break the WebSocket connection. Reconnecting after unlocking can disrupt the process. This is a straightforward fix that I can implement, but it wasn’t prioritized for the demo as it adds limited value for showcasing the core functionality.
+
+
+**Repository**: [https://github.com/bitswired/jobwizard](https://github.com/bitswired/jobwizard).  
+
+Here’s JobWizard in action:
+
+https://pub-2841a52b911a4219930a8f0eeb5a5550.r2.dev/bd-mcp-demo-desktop.mp4:
+*Desktop Demo: Watch JobWizard find “Remote Jobs in AI” and generate a tailored cover letter.*
+
+https://pub-2841a52b911a4219930a8f0eeb5a5550.r2.dev/mobile-demo.mp4:
+*Mobile Demo: Watch JobWizard find “AI Engineers jobs in Geneva” and generate a tailored cover letter.*
+
+
+
+
+The demo showcases the full workflow: upload a resume, discover job offers (e.g., “Azure Data Engineer at Devoteam”), select roles, enrich data, and receive a personalized cover letter, all powered by Bright Data’s real-time web data.
 
 
 
